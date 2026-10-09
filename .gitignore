@@ -1,3 +1,6 @@
+# Git backup folders (temporary rename to avoid submodule detection)
+**/.git_backup/
+
 # Backend - Maven / Spring Boot
 backend/target/
 backend/*.txt

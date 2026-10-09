@@ -1,0 +1,426 @@
+<div class="dashboard-container">
+  <!-- Agent Dashboard Tabs Navigation -->
+  <div class="tabs-nav">
+    <button class="tab-btn" [class.active]="activeTab === 'stats'" (click)="switchTab('stats')">
+      <i class="fa-solid fa-chart-line"></i>
+      <span *ngIf="auth.currentLang === 'ar'">الإحصائيات</span>
+      <span *ngIf="auth.currentLang === 'fr'">Statistiques</span>
+    </button>
+    
+    <button class="tab-btn" [class.active]="activeTab === 'requests'" (click)="switchTab('requests')">
+      <i class="fa-solid fa-folder-open"></i>
+      <span *ngIf="auth.currentLang === 'ar'">الطلبات الإدارية</span>
+      <span *ngIf="auth.currentLang === 'fr'">Demandes</span>
+    </button>
+
+    <button class="tab-btn" [class.active]="activeTab === 'reports'" (click)="switchTab('reports')">
+      <i class="fa-solid fa-map-location-dot"></i>
+      <span *ngIf="auth.currentLang === 'ar'">بلاغات المشاكل</span>
+      <span *ngIf="auth.currentLang === 'fr'">Signalements</span>
+    </button>
+
+    <button class="tab-btn" [class.active]="activeTab === 'contracts'" (click)="switchTab('contracts')">
+      <i class="fa-solid fa-file-signature"></i>
+      <span *ngIf="auth.currentLang === 'ar'">عقود الزواج</span>
+      <span *ngIf="auth.currentLang === 'fr'">Mariages</span>
+    </button>
+  </div>
+
+  <!-- TAB 1: Stats & Overview -->
+  <div class="tab-content" *ngIf="activeTab === 'stats'">
+    <h3 class="section-title" *ngIf="auth.currentLang === 'ar'">لوحة التحكم العامة</h3>
+    <h3 class="section-title" *ngIf="auth.currentLang === 'fr'">Tableau de Bord Général</h3>
+    
+    <div class="stats-grid">
+      <!-- Requests Stats -->
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-val">{{ stats.totalRequests }}</div>
+          <div class="stat-lbl" *ngIf="auth.currentLang === 'ar'">إجمالي طلبات الوثائق</div>
+          <div class="stat-lbl" *ngIf="auth.currentLang === 'fr'">Total Demandes de Documents</div>
+        </div>
+        <div class="stat-icon bg-info">
+          <i class="fa-solid fa-file-invoice text-white"></i>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-val text-pending">{{ stats.pendingRequests }}</div>
+          <div class="stat-lbl" *ngIf="auth.currentLang === 'ar'">الطلبات قيد الدراسة</div>
+          <div class="stat-lbl" *ngIf="auth.currentLang === 'fr'">Demandes en Attente</div>
+        </div>
+        <div class="stat-icon bg-pending">
+          <i class="fa-solid fa-clock text-white"></i>
+        </div>
+      </div>
+
+      <!-- Issues Stats -->
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-val">{{ stats.totalReports }}</div>
+          <div class="stat-lbl" *ngIf="auth.currentLang === 'ar'">البلاغات عن المشاكل</div>
+          <div class="stat-lbl" *ngIf="auth.currentLang === 'fr'">Signalements Reçus</div>
+        </div>
+        <div class="stat-icon bg-danger">
+          <i class="fa-solid fa-triangle-exclamation text-white"></i>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-val text-danger">{{ stats.unresolvedReports }}</div>
+          <div class="stat-lbl" *ngIf="auth.currentLang === 'ar'">بلاغات غير مصلحة</div>
+          <div class="stat-lbl" *ngIf="auth.currentLang === 'fr'">Signalements non Résolus</div>
+        </div>
+        <div class="stat-icon bg-danger-light">
+          <i class="fa-solid fa-circle-exclamation text-danger"></i>
+        </div>
+      </div>
+
+      <!-- Contracts Stats -->
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-val">{{ stats.totalContracts }}</div>
+          <div class="stat-lbl" *ngIf="auth.currentLang === 'ar'">عقود الزواج المسجلة</div>
+          <div class="stat-lbl" *ngIf="auth.currentLang === 'fr'">Contrats de Mariage</div>
+        </div>
+        <div class="stat-icon bg-success">
+          <i class="fa-solid fa-file-signature text-white"></i>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-val text-success">{{ stats.pendingContracts }}</div>
+          <div class="stat-lbl" *ngIf="auth.currentLang === 'ar'">عقود قيد المراجعة</div>
+          <div class="stat-lbl" *ngIf="auth.currentLang === 'fr'">Contrats en Attente</div>
+        </div>
+        <div class="stat-icon bg-success-light">
+          <i class="fa-solid fa-hourglass-start text-success"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Queue Management Widget ── -->
+    <div class="queue-management-widget">
+      <div class="queue-widget-header">
+        <div class="queue-widget-icon">👥</div>
+        <div>
+          <h4 class="queue-widget-title">
+            <span *ngIf="auth.currentLang === 'ar'">إدارة طابور الانتظار — بلديتي</span>
+            <span *ngIf="auth.currentLang === 'fr'">Gestion de la File d'Attente — Ma Mairie</span>
+          </h4>
+          <p class="queue-widget-subtitle">
+            <span *ngIf="auth.currentLang === 'ar'">تحديث عدد المنتظرين في الوقت الفعلي</span>
+            <span *ngIf="auth.currentLang === 'fr'">Mettre à jour le nombre d'attente en temps réel</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="queue-widget-body">
+        <div class="queue-display">
+          <span class="queue-number-big">{{ currentQueueCount }}</span>
+          <span class="queue-feedback-pop" *ngIf="queueFeedback">{{ queueFeedback }}</span>
+        </div>
+
+        <div class="queue-action-btns">
+          <button class="queue-btn queue-btn-add" (click)="incrementQueue()" [disabled]="queueActionLoading">
+            <i class="fa-solid fa-user-plus"></i>
+            <span *ngIf="auth.currentLang === 'ar'">مواطن وصل</span>
+            <span *ngIf="auth.currentLang === 'fr'">Citoyen arrivé</span>
+          </button>
+
+          <button class="queue-btn queue-btn-remove" (click)="decrementQueue()" [disabled]="queueActionLoading || currentQueueCount === 0">
+            <i class="fa-solid fa-user-check"></i>
+            <span *ngIf="auth.currentLang === 'ar'">تمت الخدمة</span>
+            <span *ngIf="auth.currentLang === 'fr'">Citoyen servi</span>
+          </button>
+        </div>
+
+        <p class="queue-live-note">
+          <span class="queue-live-dot"></span>
+          <span *ngIf="auth.currentLang === 'ar'">يتابع المواطنون هذا الرقم مباشرةً</span>
+          <span *ngIf="auth.currentLang === 'fr'">Les citoyens suivent ce nombre en direct</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Manage Document Requests -->
+  <div class="tab-content" *ngIf="activeTab === 'requests'">
+    <div class="premium-card">
+      <h3 class="card-title">
+        <i class="fa-solid fa-file-invoice text-primary"></i>
+        <span *ngIf="auth.currentLang === 'ar'">إدارة طلبات وثائق المواطنين</span>
+        <span *ngIf="auth.currentLang === 'fr'">Gestion des Demandes de Documents</span>
+      </h3>
+
+      <div class="table-container" *ngIf="requests.length > 0">
+        <table class="premium-table">
+          <thead>
+            <tr>
+              <th>{{ auth.currentLang === 'ar' ? 'المواطن' : 'Citoyen' }}</th>
+              <th>{{ auth.currentLang === 'ar' ? 'نوع الوثيقة والتفاصيل' : 'Type & Détails' }}</th>
+              <th>{{ auth.currentLang === 'ar' ? 'المرفقات' : 'Pièces Jointes' }}</th>
+              <th>{{ auth.currentLang === 'ar' ? 'الحالة' : 'Statut' }}</th>
+              <th>{{ auth.currentLang === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let req of requests">
+              <td>
+                <div class="td-bold">{{ req.citizen?.name }}</div>
+                <div class="td-details">{{ req.citizen?.email }}</div>
+                <div class="td-details">{{ req.citizen?.phone }}</div>
+              </td>
+              <td>
+                <div class="td-bold">{{ req.type }}</div>
+                <div class="td-details">{{ req.details }}</div>
+                <div class="td-details text-muted">{{ req.creationDate | date:'dd/MM/yyyy HH:mm' }}</div>
+              </td>
+              <td>
+                <div class="attachments-list" *ngIf="req.attachments?.length > 0">
+                  <a *ngFor="let file of req.attachments" [href]="file.fileUrl" target="_blank" class="attachment-link">
+                    <i class="fa-solid fa-paperclip"></i> {{ file.fileName }}
+                  </a>
+                </div>
+                <span class="text-muted" *ngIf="!req.attachments || req.attachments.length === 0">-</span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-pending': req.status === 'SENT' || req.status === 'VERIFYING',
+                  'badge-success': req.status === 'READY',
+                  'badge-danger': req.status === 'INCOMPLETE'
+                }">
+                  <ng-container *ngIf="auth.currentLang === 'ar'">
+                    <span *ngIf="req.status === 'SENT'">مرسل</span>
+                    <span *ngIf="req.status === 'VERIFYING'">قيد الدراسة</span>
+                    <span *ngIf="req.status === 'INCOMPLETE'">نواقص بالملف</span>
+                    <span *ngIf="req.status === 'READY'">جاهز</span>
+                  </ng-container>
+                  <ng-container *ngIf="auth.currentLang === 'fr'">
+                    <span *ngIf="req.status === 'SENT'">Envoyé</span>
+                    <span *ngIf="req.status === 'VERIFYING'">En Vérification</span>
+                    <span *ngIf="req.status === 'INCOMPLETE'">Documents requis</span>
+                    <span *ngIf="req.status === 'READY'">Prêt</span>
+                  </ng-container>
+                </span>
+              </td>
+              <td>
+                <div class="actions-buttons">
+                  <button class="btn-action btn-success" (click)="changeRequestStatus(req.id, 'READY')">
+                    <i class="fa-solid fa-check"></i>
+                    <span>{{ auth.currentLang === 'ar' ? 'جاهز' : 'Prêt' }}</span>
+                  </button>
+                  <button class="btn-action btn-info" (click)="changeRequestStatus(req.id, 'VERIFYING')">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>{{ auth.currentLang === 'ar' ? 'دراسة' : 'Étudier' }}</span>
+                  </button>
+                  
+                  <!-- Set Incomplete input -->
+                  <div class="incomplete-action">
+                    <input type="text" [(ngModel)]="requestNotes[req.id]" [placeholder]="auth.currentLang === 'ar' ? 'نواقص الملف...' : 'Documents manquants...'" class="form-control form-control-sm">
+                    <button class="btn-action btn-danger" (click)="changeRequestStatus(req.id, 'INCOMPLETE')">
+                      <i class="fa-solid fa-circle-exclamation"></i>
+                      <span>{{ auth.currentLang === 'ar' ? 'نواقص' : 'Rejeter' }}</span>
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="empty-state" *ngIf="requests.length === 0">
+        <p *ngIf="auth.currentLang === 'ar'">لا توجد طلبات واردة</p>
+        <p *ngIf="auth.currentLang === 'fr'">Aucune demande reçue</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Manage Issue Reports -->
+  <div class="tab-content" *ngIf="activeTab === 'reports'">
+    <div class="dashboard-grid">
+      <!-- Left side: Interactive Map showing all municipal problems -->
+      <div class="premium-card">
+        <h3 class="card-title">
+          <i class="fa-solid fa-map-location-dot text-primary"></i>
+          <span *ngIf="auth.currentLang === 'ar'">خريطة المشاكل البلدية الحالية</span>
+          <span *ngIf="auth.currentLang === 'fr'">Carte des Problèmes Municipaux</span>
+        </h3>
+        <div id="reports-map" class="map-container" style="height: 480px;"></div>
+      </div>
+
+      <!-- Right side: Reports Table list -->
+      <div class="premium-card">
+        <h3 class="card-title">
+          <i class="fa-solid fa-list-check text-secondary"></i>
+          <span *ngIf="auth.currentLang === 'ar'">إدارة بلاغات المواطنين</span>
+          <span *ngIf="auth.currentLang === 'fr'">Gestion des Signalements</span>
+        </h3>
+
+        <div class="table-container" *ngIf="reports.length > 0">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th>{{ auth.currentLang === 'ar' ? 'نوع وبلاغ المشكلة' : 'Problème' }}</th>
+                <th>{{ auth.currentLang === 'ar' ? 'الموقع والصورة' : 'Lieu & Photo' }}</th>
+                <th>{{ auth.currentLang === 'ar' ? 'الحالة' : 'Statut' }}</th>
+                <th>{{ auth.currentLang === 'ar' ? 'تعديل الحالة' : 'Modifier' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let rep of reports">
+                <td>
+                  <div class="td-bold">
+                    <span *ngIf="rep.type === 'GARBAGE'">{{ auth.currentLang === 'ar' ? 'تراكم النفايات' : 'Ordures/Déchets' }}</span>
+                    <span *ngIf="rep.type === 'LIGHTING'">{{ auth.currentLang === 'ar' ? 'أعمدة الإنارة معطلة' : 'Panne d\'éclairage' }}</span>
+                    <span *ngIf="rep.type === 'POTHOLE'">{{ auth.currentLang === 'ar' ? 'حفر في الطريق' : 'Nids-de-poule' }}</span>
+                    <span *ngIf="rep.type === 'WATER_LEAK'">{{ auth.currentLang === 'ar' ? 'تسرب مياه' : 'Fuite d\'eau' }}</span>
+                  </div>
+                  <div class="td-details">{{ rep.description }}</div>
+                  <div class="td-details text-muted">{{ rep.creationDate | date:'dd/MM/yyyy HH:mm' }}</div>
+                </td>
+                <td>
+                  <div class="td-coords">
+                    <i class="fa-solid fa-location-dot"></i> {{ rep.latitude }}, {{ rep.longitude }}
+                  </div>
+                  <a *ngIf="rep.photoUrl" [href]="rep.photoUrl" target="_blank" class="photo-link">
+                    <i class="fa-solid fa-image"></i> {{ auth.currentLang === 'ar' ? 'عرض الصورة' : 'Voir Image' }}
+                  </a>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'badge-pending': rep.status === 'RECEIVED',
+                    'badge-info': rep.status === 'INVESTIGATING' || rep.status === 'IN_PROGRESS',
+                    'badge-success': rep.status === 'SOLVED'
+                  }">
+                    <ng-container *ngIf="auth.currentLang === 'ar'">
+                      <span *ngIf="rep.status === 'RECEIVED'">مستلم</span>
+                      <span *ngIf="rep.status === 'INVESTIGATING'">قيد المعاينة</span>
+                      <span *ngIf="rep.status === 'IN_PROGRESS'">قيد الإصلاح</span>
+                      <span *ngIf="rep.status === 'SOLVED'">تم الإصلاح</span>
+                    </ng-container>
+                    <ng-container *ngIf="auth.currentLang === 'fr'">
+                      <span *ngIf="rep.status === 'RECEIVED'">Reçu</span>
+                      <span *ngIf="rep.status === 'INVESTIGATING'">Inspection</span>
+                      <span *ngIf="rep.status === 'IN_PROGRESS'">En Cours</span>
+                      <span *ngIf="rep.status === 'SOLVED'">Résolu</span>
+                    </ng-container>
+                  </span>
+                </td>
+                <td>
+                  <div class="actions-buttons flex-column">
+                    <button class="btn-action btn-outline btn-sm" (click)="changeReportStatus(rep.id, 'INVESTIGATING')">
+                      <span>{{ auth.currentLang === 'ar' ? 'معاينة' : 'Inspecter' }}</span>
+                    </button>
+                    <button class="btn-action btn-info btn-sm" (click)="changeReportStatus(rep.id, 'IN_PROGRESS')">
+                      <span>{{ auth.currentLang === 'ar' ? 'إصلاح' : 'En Cours' }}</span>
+                    </button>
+                    <button class="btn-action btn-success btn-sm" (click)="changeReportStatus(rep.id, 'SOLVED')">
+                      <span>{{ auth.currentLang === 'ar' ? 'تم الحل' : 'Résolu' }}</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: Marriage Contracts -->
+  <div class="tab-content" *ngIf="activeTab === 'contracts'">
+    <div class="premium-card">
+      <h3 class="card-title">
+        <i class="fa-solid fa-file-contract text-primary"></i>
+        <span *ngIf="auth.currentLang === 'ar'">إدارة عقود الزواج المدنية</span>
+        <span *ngIf="auth.currentLang === 'fr'">Gestion des Contrats de Mariage</span>
+      </h3>
+
+      <div class="table-container" *ngIf="contracts.length > 0">
+        <table class="premium-table">
+          <thead>
+            <tr>
+              <th>{{ auth.currentLang === 'ar' ? 'الزوج والزوجة' : 'Époux & Épouse' }}</th>
+              <th>{{ auth.currentLang === 'ar' ? 'التفاصيل والشهود' : 'Détails & Témoins' }}</th>
+              <th>{{ auth.currentLang === 'ar' ? 'الملفات المرفقة' : 'Manières' }}</th>
+              <th>{{ auth.currentLang === 'ar' ? 'الحالة' : 'Statut' }}</th>
+              <th>{{ auth.currentLang === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of contracts">
+              <td>
+                <div class="td-bold">🤵 {{ c.groomName }}</div>
+                <div class="td-bold">👰 {{ c.brideName }}</div>
+              </td>
+              <td>
+                <div class="td-bold">{{ c.place }}</div>
+                <div class="td-details">{{ c.contractDate }}</div>
+                <div class="td-details text-muted">{{ c.witnessDetails }}</div>
+              </td>
+              <td>
+                <div class="attachments-list" *ngIf="c.attachments?.length > 0">
+                  <a *ngFor="let file of c.attachments" [href]="file.fileUrl" target="_blank" class="attachment-link">
+                    <i class="fa-solid fa-paperclip"></i> {{ file.fileName }}
+                  </a>
+                </div>
+                <span class="text-muted" *ngIf="!c.attachments || c.attachments.length === 0">-</span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-pending': c.status === 'PENDING_REVIEW' || c.status === 'MISSING_DOCS',
+                  'badge-success': c.status === 'SIGNED',
+                  'badge-danger': c.status === 'REFUSED'
+                }">
+                  <ng-container *ngIf="auth.currentLang === 'ar'">
+                    <span *ngIf="c.status === 'PENDING_REVIEW'">قيد المراجعة</span>
+                    <span *ngIf="c.status === 'MISSING_DOCS'">نواقص بالعقد</span>
+                    <span *ngIf="c.status === 'SIGNED'">تم التوقيع</span>
+                    <span *ngIf="c.status === 'REFUSED'">مرفوض</span>
+                  </ng-container>
+                  <ng-container *ngIf="auth.currentLang === 'fr'">
+                    <span *ngIf="c.status === 'PENDING_REVIEW'">En révision</span>
+                    <span *ngIf="c.status === 'MISSING_DOCS'">Pièces manquantes</span>
+                    <span *ngIf="c.status === 'SIGNED'">Signé</span>
+                    <span *ngIf="c.status === 'REFUSED'">Refusé</span>
+                  </ng-container>
+                </span>
+              </td>
+              <td>
+                <div class="actions-buttons">
+                  <button class="btn-action btn-success" (click)="changeContractStatus(c.id, 'SIGNED')">
+                    <i class="fa-solid fa-check-double"></i>
+                    <span>{{ auth.currentLang === 'ar' ? 'توقيع' : 'Signer' }}</span>
+                  </button>
+                  
+                  <div class="incomplete-action">
+                    <input type="text" [(ngModel)]="contractNotes[c.id]" [placeholder]="auth.currentLang === 'ar' ? 'نواقص العقد...' : 'Détails manquants...'" class="form-control form-control-sm">
+                    <button class="btn-action btn-warning" (click)="changeContractStatus(c.id, 'MISSING_DOCS')">
+                      <i class="fa-solid fa-circle-exclamation"></i>
+                      <span>{{ auth.currentLang === 'ar' ? 'نواقص' : 'Nouveau' }}</span>
+                    </button>
+                  </div>
+
+                  <button class="btn-action btn-danger" (click)="changeContractStatus(c.id, 'REFUSED')">
+                    <i class="fa-solid fa-xmark"></i>
+                    <span>{{ auth.currentLang === 'ar' ? 'رفض' : 'Refuser' }}</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="empty-state" *ngIf="contracts.length === 0">
+        <p *ngIf="auth.currentLang === 'ar'">لا توجد عقود زواج مسجلة</p>
+        <p *ngIf="auth.currentLang === 'fr'">Aucun contrat de mariage enregistré</p>
+      </div>
+    </div>
+  </div>
+</div>

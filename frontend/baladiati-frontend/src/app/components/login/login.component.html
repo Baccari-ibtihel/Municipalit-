@@ -1,0 +1,126 @@
+<div class="auth-wrapper">
+  <!-- Slideshow Background Container -->
+  <div class="bg-slideshow">
+    <div class="slide slide-1"></div>
+    <div class="slide slide-2"></div>
+    <div class="slide slide-3"></div>
+    <div class="bg-overlay"></div>
+  </div>
+
+  <div class="auth-card premium-card">
+    <!-- Emblem Watermark Background -->
+    <div class="card-watermark">
+      <img src="emblem.png?v=3" alt="Republique Tunisienne Watermark">
+    </div>
+
+    <div class="auth-header">
+      <div class="official-emblem-wrapper">
+        <img src="emblem.png?v=3" alt="République Tunisienne Emblem" class="official-emblem">
+      </div>
+      <h2 *ngIf="auth.currentLang === 'ar'">الجمهورية التونسية - تسجيل الدخول</h2>
+      <h2 *ngIf="auth.currentLang === 'fr'">République Tunisienne - Connexion</h2>
+      <p class="subtitle" *ngIf="auth.currentLang === 'ar'">بلديات تونس - البوابة الوطنية للخدمات البلدية الرقمية</p>
+      <p class="subtitle" *ngIf="auth.currentLang === 'fr'">Municipalités de Tunisie - Portail des Services Municipaux</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button type="button" class="tab-btn" [class.active]="loginType === 'citizen'" (click)="setLoginType('citizen')">
+        <i class="fa-solid fa-user"></i>
+        <span *ngIf="auth.currentLang === 'ar'">مواطن</span>
+        <span *ngIf="auth.currentLang === 'fr'">Citoyen</span>
+      </button>
+      <button type="button" class="tab-btn pro" [class.active]="loginType === 'pro'" (click)="setLoginType('pro')">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span *ngIf="auth.currentLang === 'ar'">عون / ضابط</span>
+        <span *ngIf="auth.currentLang === 'fr'">Agent / Officier</span>
+      </button>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      <div class="form-group">
+        <label class="form-label" *ngIf="auth.currentLang === 'ar'">البريد الإلكتروني</label>
+        <label class="form-label" *ngIf="auth.currentLang === 'fr'">Adresse Email</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-envelope field-icon"></i>
+          <input type="email" name="email" [(ngModel)]="email" required class="form-control" placeholder="example&#64;email.com">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" *ngIf="auth.currentLang === 'ar'">كلمة المرور</label>
+        <label class="form-label" *ngIf="auth.currentLang === 'fr'">Mot de Passe</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-lock field-icon"></i>
+          <input type="password" name="password" [(ngModel)]="password" required class="form-control" placeholder="••••••••">
+        </div>
+      </div>
+
+      <!-- Champ du code unique affiché seulement si c'est un profil Pro (Agent/Officier) -->
+      <div class="form-group" *ngIf="loginType === 'pro'">
+        <label class="form-label code-unique-label" *ngIf="auth.currentLang === 'ar'">
+          <i class="fa-solid fa-key"></i> المعرف الوحيد
+        </label>
+        <label class="form-label code-unique-label" *ngIf="auth.currentLang === 'fr'">
+          <i class="fa-solid fa-key"></i> Identifiant Unique
+        </label>
+        <div class="input-wrapper">
+          <input type="text" name="uniqueCode" [(ngModel)]="uniqueCode" required class="form-control code-input" placeholder="• • • • • •" maxlength="6">
+        </div>
+      </div>
+
+      <div class="error-banner" *ngIf="errorMessage">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <button type="submit" class="btn-primary btn-block" [disabled]="loading" [class.btn-pro]="loginType === 'pro'">
+        <i class="fa-solid fa-spinner fa-spin" *ngIf="loading"></i>
+        <i class="fa-solid fa-right-to-bracket" *ngIf="!loading"></i>
+        <span *ngIf="auth.currentLang === 'ar'">دخول</span>
+        <span *ngIf="auth.currentLang === 'fr'">Connexion</span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <div style="margin-bottom: 10px;">
+        <span *ngIf="auth.currentLang === 'ar'">ليس لديك حساب؟ </span>
+        <span *ngIf="auth.currentLang === 'fr'">Pas de compte ? </span>
+        <a routerLink="/register">
+          <span *ngIf="auth.currentLang === 'ar'">إنشاء حساب مواطن</span>
+          <span *ngIf="auth.currentLang === 'fr'">Créer un compte Citoyen</span>
+        </a>
+      </div>
+      <div>
+        <span *ngIf="auth.currentLang === 'ar'">تود الانضمام كعون بلدي؟ </span>
+        <span *ngIf="auth.currentLang === 'fr'">Rejoindre en tant qu'agent ? </span>
+        <a routerLink="/agent-register">
+          <span *ngIf="auth.currentLang === 'ar'">التسجيل كعون</span>
+          <span *ngIf="auth.currentLang === 'fr'">S'inscrire comme Agent</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Login Helper -->
+    <div class="quick-login-box">
+      <p class="quick-title">
+        <i class="fa-solid fa-circle-info"></i>
+        <span *ngIf="auth.currentLang === 'ar'">حسابات تجريبية سريعة</span>
+        <span *ngIf="auth.currentLang === 'fr'">Comptes de Démo Rapide</span>
+      </p>
+      <div class="demo-accounts">
+        <div class="demo-item" (click)="email = 'citizen@gmail.com'; password = 'citizen123'; loginType = 'citizen'">
+          <strong>{{ auth.currentLang === 'ar' ? 'مواطن:' : 'Citoyen :' }}</strong>
+          <span>citizen&#64;gmail.com</span>
+        </div>
+        <div class="demo-item" (click)="email = 'agent@baladiati.gov.tn'; password = 'agent123'; loginType = 'pro'">
+          <strong>{{ auth.currentLang === 'ar' ? 'أمين بلدي:' : 'Agent :' }}</strong>
+          <span>agent&#64;baladiati.gov.tn</span>
+        </div>
+        <div class="demo-item" (click)="email = 'officiant@baladiati.gov.tn'; password = 'officiant123'; loginType = 'pro'">
+          <strong>{{ auth.currentLang === 'ar' ? 'ضابط بلدية:' : 'Officier :' }}</strong>
+          <span>officiant&#64;baladiati.gov.tn</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

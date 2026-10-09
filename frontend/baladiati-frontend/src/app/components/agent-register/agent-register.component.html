@@ -1,0 +1,137 @@
+<div class="auth-wrapper">
+  <div class="auth-card agent-card">
+
+    <!-- Header avec badge Agent -->
+    <div class="auth-header agent-header">
+      <div class="agent-badge">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h1 *ngIf="auth.currentLang === 'ar'">تسجيل عون بلدي</h1>
+      <h1 *ngIf="auth.currentLang === 'fr'">Inscription Agent Municipal</h1>
+      <p class="subtitle" *ngIf="auth.currentLang === 'ar'">أنشئ حسابك كعون بلدي — ستتلقى رمز التفعيل عبر البريد الإلكتروني</p>
+      <p class="subtitle" *ngIf="auth.currentLang === 'fr'">Créez votre compte agent — Un code d'activation vous sera envoyé par email</p>
+    </div>
+
+    <!-- Étapes visuelles -->
+    <div class="steps-bar">
+      <div class="step active">
+        <div class="step-circle">1</div>
+        <span *ngIf="auth.currentLang === 'fr'">Inscription</span>
+        <span *ngIf="auth.currentLang === 'ar'">التسجيل</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-circle">2</div>
+        <span *ngIf="auth.currentLang === 'fr'">Activation</span>
+        <span *ngIf="auth.currentLang === 'ar'">التفعيل</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-circle">3</div>
+        <span *ngIf="auth.currentLang === 'fr'">Connexion</span>
+        <span *ngIf="auth.currentLang === 'ar'">الدخول</span>
+      </div>
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+
+      <!-- Nom complet -->
+      <div class="form-group">
+        <label class="form-label" *ngIf="auth.currentLang === 'ar'">الاسم الكامل</label>
+        <label class="form-label" *ngIf="auth.currentLang === 'fr'">Nom & Prénom</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-signature field-icon"></i>
+          <input type="text" name="name" [(ngModel)]="name" required class="form-control"
+                 [placeholder]="auth.currentLang === 'ar' ? 'أحمد بن علي' : 'Ahmed Ben Ali'">
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <!-- CIN -->
+        <div class="form-group">
+          <label class="form-label" *ngIf="auth.currentLang === 'ar'">بطاقة التعريف الوطنية</label>
+          <label class="form-label" *ngIf="auth.currentLang === 'fr'">CIN (Identité Nationale)</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-id-card field-icon"></i>
+            <input type="text" name="nationalId" [(ngModel)]="nationalId" required class="form-control" placeholder="0XXXXXXX">
+          </div>
+        </div>
+
+        <!-- Téléphone -->
+        <div class="form-group">
+          <label class="form-label" *ngIf="auth.currentLang === 'ar'">رقم الهاتف</label>
+          <label class="form-label" *ngIf="auth.currentLang === 'fr'">Téléphone</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-phone field-icon"></i>
+            <input type="text" name="phone" [(ngModel)]="phone" required class="form-control" placeholder="2X XXX XXX">
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label" *ngIf="auth.currentLang === 'ar'">البريد الإلكتروني</label>
+        <label class="form-label" *ngIf="auth.currentLang === 'fr'">Adresse Email</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-envelope field-icon"></i>
+          <input type="email" name="email" [(ngModel)]="email" required class="form-control" placeholder="agent@mairie.gov.tn">
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <!-- Mot de passe -->
+        <div class="form-group">
+          <label class="form-label" *ngIf="auth.currentLang === 'ar'">كلمة المرور</label>
+          <label class="form-label" *ngIf="auth.currentLang === 'fr'">Mot de Passe</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock field-icon"></i>
+            <input type="password" name="password" [(ngModel)]="password" required class="form-control" placeholder="••••••••">
+          </div>
+        </div>
+
+        <!-- Confirmer mot de passe -->
+        <div class="form-group">
+          <label class="form-label" *ngIf="auth.currentLang === 'ar'">تأكيد كلمة المرور</label>
+          <label class="form-label" *ngIf="auth.currentLang === 'fr'">Confirmer le Mot de Passe</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock-open field-icon"></i>
+            <input type="password" name="confirmPassword" [(ngModel)]="confirmPassword" required class="form-control" placeholder="••••••••">
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="error-banner" *ngIf="errorMessage">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <div class="success-banner" *ngIf="successMessage">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>{{ successMessage }}</span>
+      </div>
+
+      <!-- Bouton submit -->
+      <button type="submit" class="btn-agent btn-block" [disabled]="loading">
+        <i class="fa-solid fa-spinner fa-spin" *ngIf="loading"></i>
+        <i class="fa-solid fa-paper-plane" *ngIf="!loading"></i>
+        <span *ngIf="auth.currentLang === 'ar'">إرسال طلب التسجيل</span>
+        <span *ngIf="auth.currentLang === 'fr'">Envoyer la demande</span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <span *ngIf="auth.currentLang === 'ar'">هل لديك رمز تفعيل؟ </span>
+      <span *ngIf="auth.currentLang === 'fr'">Vous avez déjà un code ? </span>
+      <a routerLink="/agent-activate">
+        <span *ngIf="auth.currentLang === 'ar'">تفعيل الحساب</span>
+        <span *ngIf="auth.currentLang === 'fr'">Activer mon compte</span>
+      </a>
+      <span class="separator">|</span>
+      <a routerLink="/login">
+        <span *ngIf="auth.currentLang === 'ar'">تسجيل الدخول</span>
+        <span *ngIf="auth.currentLang === 'fr'">Se connecter</span>
+      </a>
+    </div>
+  </div>
+</div>

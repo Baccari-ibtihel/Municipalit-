@@ -1,0 +1,583 @@
+<div class="dashboard-container">
+  <!-- Tabs Navigation -->
+  <div class="tabs-nav">
+    <button class="tab-btn" [class.active]="activeTab === 'requests'" (click)="switchTab('requests')">
+      <i class="fa-solid fa-file-invoice"></i>
+      <span *ngIf="auth.currentLang === 'ar'">الوثائق الإدارية</span>
+      <span *ngIf="auth.currentLang === 'fr'">Documents Administratifs</span>
+    </button>
+    
+    <button class="tab-btn" [class.active]="activeTab === 'reports'" (click)="switchTab('reports')">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span *ngIf="auth.currentLang === 'ar'">الإبلاغ عن المشاكل</span>
+      <span *ngIf="auth.currentLang === 'fr'">Signalement des Problèmes</span>
+    </button>
+
+    <button class="tab-btn" [class.active]="activeTab === 'baladiya'" (click)="switchTab('baladiya')">
+      <i class="fa-solid fa-building-columns"></i>
+      <span *ngIf="auth.currentLang === 'ar'">أقرب بلدية وطابور الانتظار</span>
+      <span *ngIf="auth.currentLang === 'fr'">Mairie & File d'attente</span>
+    </button>
+  </div>
+
+  <!-- TAB 1: Document Requests -->
+  <div class="tab-content" *ngIf="activeTab === 'requests'">
+    <div class="dashboard-grid">
+      <!-- Request Form Card -->
+      <div class="premium-card">
+        <h3 class="card-title">
+          <i class="fa-solid fa-file-signature text-primary"></i>
+          <span *ngIf="auth.currentLang === 'ar'">طلب وثيقة إدارية جديدة</span>
+          <span *ngIf="auth.currentLang === 'fr'">Nouvelle Demande de Document</span>
+        </h3>
+
+        <form (ngSubmit)="submitDocRequest()">
+          <div class="form-group">
+            <label class="form-label" *ngIf="auth.currentLang === 'ar'">نوع الوثيقة</label>
+            <label class="form-label" *ngIf="auth.currentLang === 'fr'">Type de Document</label>
+            <select name="docType" [(ngModel)]="docType" class="form-control" required>
+              <option value="" disabled>-- {{ auth.currentLang === 'ar' ? 'اختر وثيقة' : 'Choisir' }} --</option>
+              <option value="مضمون ولادة (Extrait de Naissance)">{{ auth.currentLang === 'ar' ? 'مضمون ولادة' : 'Extrait de Naissance' }}</option>
+              <option value="شهادة إقامة (Certificat de Résidence)">{{ auth.currentLang === 'ar' ? 'شهادة إقامة' : 'Certificat de Résidence' }}</option>
+              <option value="رخصة بناء (Permis de Construire)">{{ auth.currentLang === 'ar' ? 'رخصة بناء' : 'Permis de Construire' }}</option>
+              <option value="شهادة عازب (Certificat de Célibat)">{{ auth.currentLang === 'ar' ? 'شهادة عازب' : 'Certificat de Célibat' }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" *ngIf="auth.currentLang === 'ar'">تفاصيل إضافية / العنوان / الملاحظات</label>
+            <label class="form-label" *ngIf="auth.currentLang === 'fr'">Détails Supplémentaires / Adresse / Remarques</label>
+            <textarea name="docDetails" [(ngModel)]="docDetails" class="form-control" rows="3" placeholder="..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" *ngIf="auth.currentLang === 'ar'">المرفقات (بطاقة التعريف الوطنية، فاتورة، إلخ.)</label>
+            <label class="form-label" *ngIf="auth.currentLang === 'fr'">Pièces Jointes (CIN, Facture, etc.)</label>
+            <input type="file" (change)="onDocFileChange($event)" class="form-control">
+            
+            <div class="attachments-list" *ngIf="docFiles.length > 0">
+              <div class="attachment-item" *ngFor="let file of docFiles">
+                <i class="fa-solid fa-paperclip"></i>
+                <span>{{ file.fileName }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="error-banner" *ngIf="docError">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>{{ docError }}</span>
+          </div>
+
+          <div class="success-banner" *ngIf="docSuccess">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>{{ docSuccess }}</span>
+          </div>
+
+          <button type="submit" class="btn-primary btn-block" [disabled]="submittingDoc">
+            <i class="fa-solid fa-spinner fa-spin" *ngIf="submittingDoc"></i>
+            <i class="fa-solid fa-paper-plane" *ngIf="!submittingDoc"></i>
+            <span *ngIf="auth.currentLang === 'ar'">إرسال الطلب</span>
+            <span *ngIf="auth.currentLang === 'fr'">Soumettre la Demande</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Requests History Card -->
+      <div class="premium-card">
+        <h3 class="card-title">
+          <i class="fa-solid fa-history text-secondary"></i>
+          <span *ngIf="auth.currentLang === 'ar'">سجل الطلبات الخاصة بي</span>
+          <span *ngIf="auth.currentLang === 'fr'">Historique de Mes Demandes</span>
+        </h3>
+
+        <div class="table-container" *ngIf="requests.length > 0">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th>{{ auth.currentLang === 'ar' ? 'نوع الوثيقة' : 'Type' }}</th>
+                <th>{{ auth.currentLang === 'ar' ? 'تاريخ التقديم' : 'Date' }}</th>
+                <th>{{ auth.currentLang === 'ar' ? 'الحالة' : 'Statut' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let req of requests">
+                <td>
+                  <div class="td-bold">{{ req.type }}</div>
+                  <div class="td-details">{{ req.details }}</div>
+                  <!-- Missing Doc Notification -->
+                  <div class="missing-docs-note" *ngIf="req.status === 'INCOMPLETE' && req.missingDocNotes">
+                    <i class="fa-solid fa-circle-exclamation text-danger"></i>
+                    <strong>{{ auth.currentLang === 'ar' ? 'ملاحظة:' : 'Note :' }}</strong> {{ req.missingDocNotes }}
+                  </div>
+                </td>
+                <td>{{ req.creationDate | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'badge-pending': req.status === 'SENT' || req.status === 'VERIFYING',
+                    'badge-success': req.status === 'READY',
+                    'badge-danger': req.status === 'INCOMPLETE'
+                  }">
+                    <ng-container *ngIf="auth.currentLang === 'ar'">
+                      <span *ngIf="req.status === 'SENT'">مرسل</span>
+                      <span *ngIf="req.status === 'VERIFYING'">قيد الدراسة</span>
+                      <span *ngIf="req.status === 'INCOMPLETE'">نواقص بالملف</span>
+                      <span *ngIf="req.status === 'READY'">جاهز للتسلم</span>
+                    </ng-container>
+                    <ng-container *ngIf="auth.currentLang === 'fr'">
+                      <span *ngIf="req.status === 'SENT'">Envoyé</span>
+                      <span *ngIf="req.status === 'VERIFYING'">En Vérification</span>
+                      <span *ngIf="req.status === 'INCOMPLETE'">Documents Requis</span>
+                      <span *ngIf="req.status === 'READY'">Prêt</span>
+                    </ng-container>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="empty-state" *ngIf="requests.length === 0">
+          <i class="fa-solid fa-folder-open empty-icon"></i>
+          <p *ngIf="auth.currentLang === 'ar'">لا توجد طلبات مسجلة حالياً</p>
+          <p *ngIf="auth.currentLang === 'fr'">Aucune demande enregistrée</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Issue Reports -->
+  <div class="tab-content" *ngIf="activeTab === 'reports'">
+    <div class="dashboard-grid">
+      <!-- Report Form Card -->
+      <div class="premium-card">
+        <h3 class="card-title">
+          <i class="fa-solid fa-circle-exclamation text-primary"></i>
+          <span *ngIf="auth.currentLang === 'ar'">الإبلاغ عن مشكلة في المنطقة</span>
+          <span *ngIf="auth.currentLang === 'fr'">Signaler un Problème Local</span>
+        </h3>
+
+        <form (ngSubmit)="submitReport()">
+          <div class="form-group">
+            <label class="form-label" *ngIf="auth.currentLang === 'ar'">نوع المشكلة</label>
+            <label class="form-label" *ngIf="auth.currentLang === 'fr'">Type de Problème</label>
+            <select name="reportType" [(ngModel)]="reportType" class="form-control" required>
+              <option value="" disabled>-- {{ auth.currentLang === 'ar' ? 'اختر نوع' : 'Choisir' }} --</option>
+              <option value="GARBAGE">{{ auth.currentLang === 'ar' ? 'تراكم النفايات' : 'Déchets/Ordures' }}</option>
+              <option value="LIGHTING">{{ auth.currentLang === 'ar' ? 'أعمدة الإنارة معطلة' : 'Panne d\'éclairage public' }}</option>
+              <option value="POTHOLE">{{ auth.currentLang === 'ar' ? 'حفر في الطريق' : 'Nids-de-poule' }}</option>
+              <option value="WATER_LEAK">{{ auth.currentLang === 'ar' ? 'تسرب مياه' : 'Fuite d\'eau' }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" *ngIf="auth.currentLang === 'ar'">وصف المشكلة وعنوانها</label>
+            <label class="form-label" *ngIf="auth.currentLang === 'fr'">Description et localisation du problème</label>
+            <textarea name="reportDescription" [(ngModel)]="reportDescription" class="form-control" rows="3" placeholder="..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" *ngIf="auth.currentLang === 'ar'">صورة المشكلة (اختياري)</label>
+            <label class="form-label" *ngIf="auth.currentLang === 'fr'">Photo du Problème (Optionnel)</label>
+            <input type="file" (change)="onReportFileChange($event)" class="form-control">
+            
+            <div class="img-preview" *ngIf="reportPhotoUrl">
+              <img [src]="reportPhotoUrl" alt="Preview">
+            </div>
+          </div>
+
+          <!-- Interactive Coordinates Selection -->
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fa-solid fa-map-location-dot"></i>
+              <span *ngIf="auth.currentLang === 'ar'">حدد موقع المشكلة على الخريطة (انقر أو اسحب المؤشر)</span>
+              <span *ngIf="auth.currentLang === 'fr'">Localiser sur la carte (cliquer ou glisser le marqueur)</span>
+            </label>
+            
+            <button type="button" class="btn-secondary" style="margin-bottom: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" (click)="getUserLocation()">
+              <i class="fa-solid fa-location-crosshairs"></i>
+              <span *ngIf="auth.currentLang === 'ar'">تحديد موقعي الحالي</span>
+              <span *ngIf="auth.currentLang === 'fr'">M'autoriser et utiliser ma position actuelle</span>
+            </button>
+
+            <div class="map-coordinates">
+              <span><strong>Lat:</strong> {{ latitude }}</span>
+              <span><strong>Lng:</strong> {{ longitude }}</span>
+            </div>
+
+            <!-- ── Nearest Baladiya Card ── -->
+            <div class="baladiya-loading" *ngIf="loadingBaladiya">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+              <span *ngIf="auth.currentLang === 'ar'">جارٍ البحث عن أقرب بلدية...</span>
+              <span *ngIf="auth.currentLang === 'fr'">Recherche de la mairie la plus proche...</span>
+            </div>
+
+            <div class="nearest-baladiya-card" *ngIf="nearestBaladiya && !loadingBaladiya">
+              <!-- Header -->
+              <div class="baladiya-card-header">
+                <div class="baladiya-icon-wrap">🏛️</div>
+                <div class="baladiya-info">
+                  <h4 class="baladiya-name">
+                    {{ auth.currentLang === 'ar' ? nearestBaladiya.nameAr : nearestBaladiya.nameFr }}
+                  </h4>
+                  <p class="baladiya-address">
+                    <i class="fa-solid fa-location-dot"></i>
+                    {{ nearestBaladiya.address }}
+                  </p>
+                </div>
+                <div class="baladiya-distance-badge">
+                  <i class="fa-solid fa-route"></i>
+                  {{ nearestBaladiya.distanceKm }} km
+                </div>
+              </div>
+
+              <!-- Status Row -->
+              <div class="baladiya-status-row">
+                <!-- Open/Closed Badge -->
+                <div class="status-badge" [class.open]="baladiayaIsOpen" [class.closed]="!baladiayaIsOpen">
+                  <span class="status-dot"></span>
+                  <ng-container *ngIf="auth.currentLang === 'ar'">
+                    <span *ngIf="baladiayaIsOpen">مفتوحة الآن</span>
+                    <span *ngIf="!baladiayaIsOpen">مغلقة</span>
+                  </ng-container>
+                  <ng-container *ngIf="auth.currentLang === 'fr'">
+                    <span *ngIf="baladiayaIsOpen">Ouverte</span>
+                    <span *ngIf="!baladiayaIsOpen">Fermée</span>
+                  </ng-container>
+                </div>
+
+                <!-- Hours -->
+                <div class="hours-info">
+                  <i class="fa-solid fa-clock"></i>
+                  {{ nearestBaladiya.openingTime }} – {{ nearestBaladiya.closingTime }}
+                  <span class="working-days">({{ nearestBaladiya.workingDays }})</span>
+                </div>
+              </div>
+
+              <!-- Queue Count -->
+              <div class="baladiya-queue-row">
+                <div class="queue-icon">
+                  <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="queue-info">
+                  <div class="queue-count">{{ baladiayaQueueCount }}</div>
+                  <div class="queue-label">
+                    <span *ngIf="auth.currentLang === 'ar'">شخص في الانتظار قبلك</span>
+                    <span *ngIf="auth.currentLang === 'fr'">personne(s) en file d'attente</span>
+                  </div>
+                </div>
+                <div class="live-indicator">
+                  <span class="live-dot"></span>
+                  <span class="live-text">LIVE</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Map Target Container -->
+            <div id="map" class="map-container"></div>
+          </div>
+
+          <div class="error-banner" *ngIf="reportError">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>{{ reportError }}</span>
+          </div>
+
+          <div class="success-banner" *ngIf="reportSuccess">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>{{ reportSuccess }}</span>
+          </div>
+
+          <button type="submit" class="btn-primary btn-block" [disabled]="submittingReport">
+            <i class="fa-solid fa-spinner fa-spin" *ngIf="submittingReport"></i>
+            <i class="fa-solid fa-paper-plane" *ngIf="!submittingReport"></i>
+            <span *ngIf="auth.currentLang === 'ar'">إرسال البلاغ</span>
+            <span *ngIf="auth.currentLang === 'fr'">Soumettre le Signalement</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Reports History Card -->
+      <div class="premium-card">
+        <h3 class="card-title">
+          <i class="fa-solid fa-history text-secondary"></i>
+          <span *ngIf="auth.currentLang === 'ar'">سجل البلاغات الخاصة بي</span>
+          <span *ngIf="auth.currentLang === 'fr'">Historique de Mes Signalements</span>
+        </h3>
+
+        <div class="table-container" *ngIf="reports.length > 0">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th>{{ auth.currentLang === 'ar' ? 'نوع المشكل' : 'Type' }}</th>
+                <th>{{ auth.currentLang === 'ar' ? 'تاريخ التبليغ' : 'Date' }}</th>
+                <th>{{ auth.currentLang === 'ar' ? 'الحالة' : 'Statut' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let rep of reports">
+                <td>
+                  <div class="td-bold">
+                    <span *ngIf="rep.type === 'GARBAGE'">{{ auth.currentLang === 'ar' ? 'تراكم النفايات' : 'Déchets/Ordures' }}</span>
+                    <span *ngIf="rep.type === 'LIGHTING'">{{ auth.currentLang === 'ar' ? 'أعمدة الإنارة معطلة' : 'Panne d\'éclairage public' }}</span>
+                    <span *ngIf="rep.type === 'POTHOLE'">{{ auth.currentLang === 'ar' ? 'حفر في الطريق' : 'Nids-de-poule' }}</span>
+                    <span *ngIf="rep.type === 'WATER_LEAK'">{{ auth.currentLang === 'ar' ? 'تسرب مياه' : 'Fuite d\'eau' }}</span>
+                  </div>
+                  <div class="td-details">{{ rep.description }}</div>
+                  <div class="td-coords">
+                    <i class="fa-solid fa-location-dot text-primary"></i> 
+                    <span>{{ rep.latitude }}, {{ rep.longitude }}</span>
+                  </div>
+                </td>
+                <td>{{ rep.creationDate | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'badge-pending': rep.status === 'RECEIVED',
+                    'badge-info': rep.status === 'INVESTIGATING' || rep.status === 'IN_PROGRESS',
+                    'badge-success': rep.status === 'SOLVED'
+                  }">
+                    <ng-container *ngIf="auth.currentLang === 'ar'">
+                      <span *ngIf="rep.status === 'RECEIVED'">تم استلامه</span>
+                      <span *ngIf="rep.status === 'INVESTIGATING'">قيد المعاينة</span>
+                      <span *ngIf="rep.status === 'IN_PROGRESS'">قيد الإصلاح</span>
+                      <span *ngIf="rep.status === 'SOLVED'">تم الإصلاح</span>
+                    </ng-container>
+                    <ng-container *ngIf="auth.currentLang === 'fr'">
+                      <span *ngIf="rep.status === 'RECEIVED'">Reçu</span>
+                      <span *ngIf="rep.status === 'INVESTIGATING'">Investigation</span>
+                      <span *ngIf="rep.status === 'IN_PROGRESS'">En Cours</span>
+                      <span *ngIf="rep.status === 'SOLVED'">Résolu</span>
+                    </ng-container>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="empty-state" *ngIf="reports.length === 0">
+          <i class="fa-solid fa-triangle-exclamation empty-icon"></i>
+          <p *ngIf="auth.currentLang === 'ar'">لا توجد بلاغات مسجلة حالياً</p>
+          <p *ngIf="auth.currentLang === 'fr'">Aucun signalement enregistré</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Nearest Baladiya & Live Queue -->
+  <div class="tab-content" *ngIf="activeTab === 'baladiya'">
+    <div class="dashboard-grid">
+      <!-- Left side: Interactive Map & Nearest Baladiya -->
+      <div class="premium-card">
+        <h3 class="card-title">
+          <i class="fa-solid fa-building-columns text-primary"></i>
+          <span *ngIf="auth.currentLang === 'ar'">الخريطة التفاعلية وأقرب بلدية</span>
+          <span *ngIf="auth.currentLang === 'fr'">Carte Interactive & Mairie la Plus Proche</span>
+        </h3>
+
+        <div class="map-controls mb-3">
+          <button type="button" class="btn-secondary" (click)="getUserLocation()">
+            <i class="fa-solid fa-location-crosshairs text-primary"></i>
+            <span *ngIf="auth.currentLang === 'ar'">تحديد موقعي الحالي لقيس المسافة الدقيقة</span>
+            <span *ngIf="auth.currentLang === 'fr'">Utiliser ma position exacte</span>
+          </button>
+        </div>
+
+        <!-- Location notice banner if location not granted yet -->
+        <div class="location-notice-banner" *ngIf="!hasExactUserLocation">
+          <i class="fa-solid fa-location-crosshairs text-primary" style="font-size: 1.2rem;"></i>
+          <div>
+            <span *ngIf="auth.currentLang === 'ar'"><strong>انقر على 'تحديد موقعي الحالي'</strong> أو حدد موقعك على الخريطة لحساب المسافات الحقيقية وإظهار البلديات الأقرب إليك!</span>
+            <span *ngIf="auth.currentLang === 'fr'"><strong>Cliquez sur 'Utiliser ma position exacte'</strong> ou pointez votre position sur la carte pour afficher les mairies les plus proches !</span>
+          </div>
+        </div>
+
+        <div class="map-coordinates" *ngIf="hasExactUserLocation">
+          <span><strong>Lat:</strong> {{ latitude }}</span>
+          <span><strong>Lng:</strong> {{ longitude }}</span>
+        </div>
+
+        <!-- ── Nearest Baladiya Card ── -->
+        <div class="baladiya-loading" *ngIf="loadingBaladiya">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <span *ngIf="auth.currentLang === 'ar'">جارٍ البحث عن أقرب بلدية...</span>
+          <span *ngIf="auth.currentLang === 'fr'">Recherche de la mairie la plus proche...</span>
+        </div>
+
+        <div class="nearest-baladiya-card" *ngIf="hasExactUserLocation && nearestBaladiya && !loadingBaladiya">
+          <!-- Header -->
+          <div class="baladiya-card-header">
+            <div class="baladiya-icon-wrap">🏛️</div>
+            <div class="baladiya-info">
+              <h4 class="baladiya-name">
+                {{ auth.currentLang === 'ar' ? nearestBaladiya.nameAr : nearestBaladiya.nameFr }}
+              </h4>
+              <p class="baladiya-address">
+                <i class="fa-solid fa-location-dot"></i>
+                {{ nearestBaladiya.address }}
+              </p>
+            </div>
+            <div class="baladiya-distance-badge">
+              <i class="fa-solid fa-route"></i>
+              {{ nearestBaladiya.distanceKm }} km
+            </div>
+          </div>
+
+          <!-- Status Row -->
+          <div class="baladiya-status-row">
+            <div class="status-badge" [class.open]="baladiayaIsOpen" [class.closed]="!baladiayaIsOpen">
+              <span class="status-dot"></span>
+              <ng-container *ngIf="auth.currentLang === 'ar'">
+                <span *ngIf="baladiayaIsOpen">مفتوحة الآن</span>
+                <span *ngIf="!baladiayaIsOpen">مغلقة</span>
+              </ng-container>
+              <ng-container *ngIf="auth.currentLang === 'fr'">
+                <span *ngIf="baladiayaIsOpen">Ouverte</span>
+                <span *ngIf="!baladiayaIsOpen">Fermée</span>
+              </ng-container>
+            </div>
+
+            <div class="hours-info">
+              <i class="fa-solid fa-clock"></i>
+              {{ nearestBaladiya.openingTime }} – {{ nearestBaladiya.closingTime }}
+              <span class="working-days">({{ nearestBaladiya.workingDays }})</span>
+            </div>
+          </div>
+
+          <!-- Queue Count (Open) -->
+          <div class="baladiya-queue-row" *ngIf="baladiayaIsOpen">
+            <div class="queue-icon">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div class="queue-info">
+              <div class="queue-count">{{ baladiayaQueueCount }}</div>
+              <div class="queue-label">
+                <span *ngIf="auth.currentLang === 'ar'">شخص في الانتظار قبلك</span>
+                <span *ngIf="auth.currentLang === 'fr'">personne(s) en file d'attente</span>
+              </div>
+            </div>
+            <div class="live-indicator">
+              <span class="live-dot"></span>
+              <span class="live-text">LIVE</span>
+            </div>
+          </div>
+
+          <!-- Notice when Closed -->
+          <div class="baladiya-closed-notice" *ngIf="!baladiayaIsOpen">
+            <i class="fa-solid fa-store-slash"></i>
+            <span *ngIf="auth.currentLang === 'ar'">البلدية مغلقة حالياً — لا توجد صفوف انتظار</span>
+            <span *ngIf="auth.currentLang === 'fr'">La mairie est actuellement fermée — Aucune file d'attente</span>
+          </div>
+        </div>
+
+        <!-- Map Target Container -->
+        <div id="map" class="map-container" style="height: 420px;"></div>
+      </div>
+
+      <!-- Right side: Nearby Baladiyat List & Queue Status -->
+      <div class="premium-card">
+        <h3 class="card-title">
+          <i class="fa-solid fa-list-ol text-primary"></i>
+          <span *ngIf="auth.currentLang === 'ar'">قائمة البلديات المجاورة وحالة الاكتظاظ</span>
+          <span *ngIf="auth.currentLang === 'fr'">Liste des Mairies & État d'Affluence</span>
+        </h3>
+
+        <!-- Prompt when location is not set yet -->
+        <div class="location-prompt-container" *ngIf="!hasExactUserLocation && !loadingBaladiya">
+          <div class="empty-state" style="padding: 40px 20px;">
+            <i class="fa-solid fa-map-location-dot empty-icon" style="color: var(--primary);"></i>
+            <h4 style="margin-bottom: 12px; font-weight: 700; color: #1e293b;">
+              <span *ngIf="auth.currentLang === 'ar'">حدد موقعك لعرض أقرب البلديات</span>
+              <span *ngIf="auth.currentLang === 'fr'">Indiquez votre position pour afficher les mairies</span>
+            </h4>
+            <p style="max-width: 380px; margin: 0 auto 24px; color: var(--text-muted); font-size: 0.92rem; line-height: 1.6;">
+              <span *ngIf="auth.currentLang === 'ar'">انقر على زر "تحديد موقعي الحالي" أو اختر نقطة على الخريطة لعرض أقرب 5 بلديات لموقعك وحالة طوابير الانتظار الحالية.</span>
+              <span *ngIf="auth.currentLang === 'fr'">Cliquez sur "Utiliser ma position exacte" ou pointez sur la carte pour afficher les 5 mairies les plus proches et l'état d'affluence.</span>
+            </p>
+            <button type="button" class="btn-primary" (click)="getUserLocation()" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700; padding: 12px 24px;">
+              <i class="fa-solid fa-location-crosshairs"></i>
+              <span *ngIf="auth.currentLang === 'ar'">تحديد موقعي الحالي</span>
+              <span *ngIf="auth.currentLang === 'fr'">Utiliser ma position exacte</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="baladiya-loading" *ngIf="loadingBaladiya">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <span *ngIf="auth.currentLang === 'ar'">جارٍ تحميل البلديات القريبة...</span>
+          <span *ngIf="auth.currentLang === 'fr'">Chargement des mairies proches...</span>
+        </div>
+
+        <div class="baladiya-list-container" *ngIf="hasExactUserLocation && nearbyBaladiyatList.length > 0 && !loadingBaladiya">
+          <div 
+            class="baladiya-list-item" 
+            *ngFor="let b of nearbyBaladiyatList; let i = index"
+            [class.active]="nearestBaladiya?.id === b.id"
+            (click)="selectBaladiyaFromList(b)"
+          >
+            <div class="item-header">
+              <div class="item-title">
+                <span class="rank-badge">#{{ i + 1 }}</span>
+                <strong>{{ auth.currentLang === 'ar' ? b.nameAr : b.nameFr }}</strong>
+              </div>
+              <span class="item-distance">
+                <i class="fa-solid fa-route text-primary"></i> {{ b.distanceKm }} km
+              </span>
+            </div>
+
+            <div class="item-details">
+              <div class="item-status">
+                <span class="status-pill" [class.open]="b.isOpen" [class.closed]="!b.isOpen">
+                  {{ b.isOpen ? (auth.currentLang === 'ar' ? 'مفتوحة' : 'Ouverte') : (auth.currentLang === 'ar' ? 'مغلقة' : 'Fermée') }}
+                </span>
+                <span class="item-hours">
+                  <i class="fa-solid fa-clock"></i> {{ b.openingTime }} - {{ b.closingTime }}
+                </span>
+              </div>
+
+              <!-- Crowd Status Badge -->
+              <div class="crowd-badge" [ngClass]="{
+                'crowd-closed': !b.isOpen,
+                'crowd-low': b.isOpen && b.queueCount <= 3,
+                'crowd-med': b.isOpen && b.queueCount > 3 && b.queueCount <= 8,
+                'crowd-high': b.isOpen && b.queueCount > 8
+              }">
+                <ng-container *ngIf="auth.currentLang === 'ar'">
+                  <span *ngIf="!b.isOpen">🔒 مغلقة</span>
+                  <span *ngIf="b.isOpen && b.queueCount <= 3">🟢 هادئة</span>
+                  <span *ngIf="b.isOpen && b.queueCount > 3 && b.queueCount <= 8">🟠 متوسطة</span>
+                  <span *ngIf="b.isOpen && b.queueCount > 8">🔴 مكتظة (معبّية)</span>
+                </ng-container>
+                <ng-container *ngIf="auth.currentLang === 'fr'">
+                  <span *ngIf="!b.isOpen">🔒 Fermée</span>
+                  <span *ngIf="b.isOpen && b.queueCount <= 3">🟢 Fluide</span>
+                  <span *ngIf="b.isOpen && b.queueCount > 3 && b.queueCount <= 8">🟠 Modérée</span>
+                  <span *ngIf="b.isOpen && b.queueCount > 8">🔴 Encombrée</span>
+                </ng-container>
+              </div>
+            </div>
+
+            <div class="item-queue-row">
+              <div class="queue-text" *ngIf="b.isOpen">
+                <i class="fa-solid fa-users text-secondary"></i>
+                <span *ngIf="auth.currentLang === 'ar'">عدد المنتظرين قبلك: <strong>{{ b.queueCount }} personnes</strong></span>
+                <span *ngIf="auth.currentLang === 'fr'">Personnes en attente: <strong>{{ b.queueCount }}</strong></span>
+              </div>
+              <div class="queue-text closed-text" *ngIf="!b.isOpen">
+                <i class="fa-solid fa-circle-xmark text-muted"></i>
+                <span *ngIf="auth.currentLang === 'ar'">مغلقة (لا يوجد طابور)</span>
+                <span *ngIf="auth.currentLang === 'fr'">Fermée (Aucune file d'attente)</span>
+              </div>
+              <span class="select-hint" *ngIf="nearestBaladiya?.id === b.id">
+                <i class="fa-solid fa-location-dot"></i> {{ auth.currentLang === 'ar' ? 'محددة على الخريطة' : 'Sélectionnée' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="hasExactUserLocation && nearbyBaladiyatList.length === 0 && !loadingBaladiya">
+          <p *ngIf="auth.currentLang === 'ar'">لا توجد بلديات مسجلة بالقرب منك</p>
+          <p *ngIf="auth.currentLang === 'fr'">Aucune mairie trouvée à proximité</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,86 @@
+<div class="auth-wrapper">
+  <div class="auth-card premium-card">
+    <div class="auth-header">
+      <i class="fa-solid fa-user-plus auth-logo"></i>
+      <h2 *ngIf="auth.currentLang === 'ar'">إنشاء حساب مواطن</h2>
+      <h2 *ngIf="auth.currentLang === 'fr'">Créer un Compte Citoyen</h2>
+      <p class="subtitle" *ngIf="auth.currentLang === 'ar'">سجل للاستفادة من الخدمات الرقمية لبلديتك</p>
+      <p class="subtitle" *ngIf="auth.currentLang === 'fr'">Inscrivez-vous aux services en ligne de votre mairie</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label class="form-label" *ngIf="auth.currentLang === 'ar'">الاسم الكامل (الاسم واللقب)</label>
+        <label class="form-label" *ngIf="auth.currentLang === 'fr'">Nom & Prénom</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-signature field-icon"></i>
+          <input type="text" name="name" [(ngModel)]="name" required class="form-control" placeholder="أحمد بن علي">
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" *ngIf="auth.currentLang === 'ar'">رقم بطاقة التعريف الوطنية</label>
+          <label class="form-label" *ngIf="auth.currentLang === 'fr'">CIN (Identité Nationale)</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-id-card field-icon"></i>
+            <input type="text" name="nationalId" [(ngModel)]="nationalId" required class="form-control" placeholder="0XXXXXXX">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" *ngIf="auth.currentLang === 'ar'">رقم الهاتف</label>
+          <label class="form-label" *ngIf="auth.currentLang === 'fr'">Téléphone</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-phone field-icon"></i>
+            <input type="text" name="phone" [(ngModel)]="phone" required class="form-control" placeholder="22334455">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" *ngIf="auth.currentLang === 'ar'">البريد الإلكتروني</label>
+        <label class="form-label" *ngIf="auth.currentLang === 'fr'">Adresse Email</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-envelope field-icon"></i>
+          <input type="email" name="email" [(ngModel)]="email" required class="form-control" placeholder="example@email.com">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" *ngIf="auth.currentLang === 'ar'">كلمة المرور</label>
+        <label class="form-label" *ngIf="auth.currentLang === 'fr'">Mot de Passe</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-lock field-icon"></i>
+          <input type="password" name="password" [(ngModel)]="password" required class="form-control" placeholder="••••••••">
+        </div>
+      </div>
+
+      <div class="error-banner" *ngIf="errorMessage">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <div class="success-banner" *ngIf="successMessage">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>{{ successMessage }}</span>
+      </div>
+
+      <button type="submit" class="btn-primary btn-block" [disabled]="loading">
+        <i class="fa-solid fa-spinner fa-spin" *ngIf="loading"></i>
+        <i class="fa-solid fa-user-plus" *ngIf="!loading"></i>
+        <span *ngIf="auth.currentLang === 'ar'">تسجيل</span>
+        <span *ngIf="auth.currentLang === 'fr'">S'inscrire</span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <span *ngIf="auth.currentLang === 'ar'">لديك حساب بالفعل؟ </span>
+      <span *ngIf="auth.currentLang === 'fr'">Déjà inscrit ? </span>
+      <a routerLink="/login">
+        <span *ngIf="auth.currentLang === 'ar'">دخول</span>
+        <span *ngIf="auth.currentLang === 'fr'">Se connecter</span>
+      </a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,125 @@
+<div class="auth-wrapper">
+  <div class="auth-card activate-card">
+
+    <!-- Header -->
+    <div class="auth-header activate-header">
+      <div class="activate-icon-wrap">
+        <i class="fa-solid fa-envelope-open-text"></i>
+      </div>
+      <h1 *ngIf="auth.currentLang === 'ar'">تفعيل حساب العون البلدي</h1>
+      <h1 *ngIf="auth.currentLang === 'fr'">Activation du Compte Agent</h1>
+      <p class="subtitle" *ngIf="auth.currentLang === 'ar'">تفقد بريدك الإلكتروني وأدخل الرمز الذي أرسلناه إليك</p>
+      <p class="subtitle" *ngIf="auth.currentLang === 'fr'">Consultez votre email et saisissez le code unique que nous vous avons envoyé</p>
+    </div>
+
+    <!-- Barre de progression (étape 2 active) -->
+    <div class="steps-bar">
+      <div class="step done">
+        <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+        <span *ngIf="auth.currentLang === 'fr'">Inscription</span>
+        <span *ngIf="auth.currentLang === 'ar'">التسجيل</span>
+      </div>
+      <div class="step-line done-line"></div>
+      <div class="step active">
+        <div class="step-circle">2</div>
+        <span *ngIf="auth.currentLang === 'fr'">Activation</span>
+        <span *ngIf="auth.currentLang === 'ar'">التفعيل</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-circle">3</div>
+        <span *ngIf="auth.currentLang === 'fr'">Connexion</span>
+        <span *ngIf="auth.currentLang === 'ar'">الدخول</span>
+      </div>
+    </div>
+
+    <!-- Info box -->
+    <div class="info-banner">
+      <i class="fa-solid fa-mobile-screen-button"></i>
+      <div>
+        <span *ngIf="auth.currentLang === 'fr'">
+          Un <strong>code à 6 chiffres</strong> a été envoyé à votre adresse email. Ce code est valable <strong>15 minutes</strong>.
+        </span>
+        <span *ngIf="auth.currentLang === 'ar'">
+          تم إرسال <strong>رمز مكون من 6 أرقام</strong> إلى بريدك الإلكتروني. صالح لمدة <strong>15 دقيقة</strong>.
+        </span>
+      </div>
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+
+      <!-- Code d'activation — mis en avant -->
+      <div class="form-group">
+        <label class="form-label code-label" *ngIf="auth.currentLang === 'ar'">
+          <i class="fa-solid fa-key"></i> رمز التفعيل الفريد
+        </label>
+        <label class="form-label code-label" *ngIf="auth.currentLang === 'fr'">
+          <i class="fa-solid fa-key"></i> Identifiant Unique d'Activation
+        </label>
+        <input
+          type="text"
+          name="activationCode"
+          [(ngModel)]="activationCode"
+          required
+          class="form-control code-input"
+          placeholder="• • • • • •"
+          maxlength="6"
+          autocomplete="one-time-code"
+        >
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label" *ngIf="auth.currentLang === 'ar'">البريد الإلكتروني</label>
+        <label class="form-label" *ngIf="auth.currentLang === 'fr'">Adresse Email</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-envelope field-icon"></i>
+          <input type="email" name="email" [(ngModel)]="email" required class="form-control" placeholder="agent@mairie.gov.tn">
+        </div>
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="form-group">
+        <label class="form-label" *ngIf="auth.currentLang === 'ar'">كلمة المرور</label>
+        <label class="form-label" *ngIf="auth.currentLang === 'fr'">Mot de Passe</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-lock field-icon"></i>
+          <input type="password" name="password" [(ngModel)]="password" required class="form-control" placeholder="••••••••">
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="error-banner" *ngIf="errorMessage">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <div class="success-banner" *ngIf="successMessage">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>{{ successMessage }}</span>
+      </div>
+
+      <!-- Bouton -->
+      <button type="submit" class="btn-activate btn-block" [disabled]="loading">
+        <i class="fa-solid fa-spinner fa-spin" *ngIf="loading"></i>
+        <i class="fa-solid fa-unlock" *ngIf="!loading"></i>
+        <span *ngIf="auth.currentLang === 'ar'">تفعيل الحساب</span>
+        <span *ngIf="auth.currentLang === 'fr'">Activer mon compte</span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <span *ngIf="auth.currentLang === 'fr'">Pas encore inscrit ? </span>
+      <span *ngIf="auth.currentLang === 'ar'">لم تسجل بعد؟ </span>
+      <a routerLink="/agent-register">
+        <span *ngIf="auth.currentLang === 'fr'">S'inscrire comme agent</span>
+        <span *ngIf="auth.currentLang === 'ar'">التسجيل كعون بلدي</span>
+      </a>
+      <span class="separator">|</span>
+      <a routerLink="/login">
+        <span *ngIf="auth.currentLang === 'fr'">Se connecter</span>
+        <span *ngIf="auth.currentLang === 'ar'">تسجيل الدخول</span>
+      </a>
+    </div>
+  </div>
+</div>

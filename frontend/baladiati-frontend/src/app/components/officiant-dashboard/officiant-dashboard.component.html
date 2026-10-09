@@ -1,0 +1,145 @@
+<div class="dashboard-container">
+  <div class="dashboard-grid">
+    <!-- Form Card -->
+    <div class="premium-card">
+      <h3 class="card-title">
+        <i class="fa-solid fa-file-signature text-primary"></i>
+        <span *ngIf="auth.currentLang === 'ar'">تسجيل عقد زواج جديد</span>
+        <span *ngIf="auth.currentLang === 'fr'">Enregistrer un Contrat de Mariage</span>
+      </h3>
+
+      <form (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label class="form-label" *ngIf="auth.currentLang === 'ar'">اسم الزوج بالكامل</label>
+          <label class="form-label" *ngIf="auth.currentLang === 'fr'">Nom Complet de l'Époux (Groom)</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user-tie field-icon"></i>
+            <input type="text" name="groomName" [(ngModel)]="groomName" required class="form-control" placeholder="...">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" *ngIf="auth.currentLang === 'ar'">اسم الزوجة بالكامل</label>
+          <label class="form-label" *ngIf="auth.currentLang === 'fr'">Nom Complet de l'Épouse (Bride)</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user-nurse field-icon"></i>
+            <input type="text" name="brideName" [(ngModel)]="brideName" required class="form-control" placeholder="...">
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" *ngIf="auth.currentLang === 'ar'">تاريخ العقد</label>
+            <label class="form-label" *ngIf="auth.currentLang === 'fr'">Date du Contrat</label>
+            <input type="date" name="contractDate" [(ngModel)]="contractDate" required class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" *ngIf="auth.currentLang === 'ar'">مكان العقد / البلدية</label>
+            <label class="form-label" *ngIf="auth.currentLang === 'fr'">Lieu de Célébration</label>
+            <input type="text" name="place" [(ngModel)]="place" required class="form-control" placeholder="...">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" *ngIf="auth.currentLang === 'ar'">تفاصيل الشهود (الأسماء وبطاقات التعريف)</label>
+          <label class="form-label" *ngIf="auth.currentLang === 'fr'">Détails des Témoins (Noms & CIN)</label>
+          <textarea name="witnessDetails" [(ngModel)]="witnessDetails" class="form-control" rows="3" placeholder="..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" *ngIf="auth.currentLang === 'ar'">المرفقات (شهادات الميلاد، بطاقات التعريف مصورة)</label>
+          <label class="form-label" *ngIf="auth.currentLang === 'fr'">Pièces Jointes (Actes, Copies CIN)</label>
+          <input type="file" (change)="onFileChange($event)" class="form-control">
+          
+          <div class="attachments-list" *ngIf="attachments.length > 0">
+            <div class="attachment-item" *ngFor="let file of attachments">
+              <i class="fa-solid fa-paperclip"></i>
+              <span>{{ file.fileName }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="error-banner" *ngIf="errorMessage">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <div class="success-banner" *ngIf="successMessage">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>{{ successMessage }}</span>
+        </div>
+
+        <button type="submit" class="btn-primary btn-block" [disabled]="loading">
+          <i class="fa-solid fa-spinner fa-spin" *ngIf="loading"></i>
+          <i class="fa-solid fa-save" *ngIf="!loading"></i>
+          <span *ngIf="auth.currentLang === 'ar'">تسجيل العقد</span>
+          <span *ngIf="auth.currentLang === 'fr'">Enregistrer le Contrat</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- History Card -->
+    <div class="premium-card">
+      <h3 class="card-title">
+        <i class="fa-solid fa-history text-secondary"></i>
+        <span *ngIf="auth.currentLang === 'ar'">عقود الزواج المسجلة بواسطتي</span>
+        <span *ngIf="auth.currentLang === 'fr'">Contrats Enregistrés par Moi</span>
+      </h3>
+
+      <div class="table-container" *ngIf="contracts.length > 0">
+        <table class="premium-table">
+          <thead>
+            <tr>
+              <th>{{ auth.currentLang === 'ar' ? 'الزوجين' : 'Époux' }}</th>
+              <th>{{ auth.currentLang === 'ar' ? 'التاريخ والمكان' : 'Date & Lieu' }}</th>
+              <th>{{ auth.currentLang === 'ar' ? 'الحالة' : 'Statut' }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of contracts">
+              <td>
+                <div class="td-bold">🤵 {{ c.groomName }}</div>
+                <div class="td-bold">👰 {{ c.brideName }}</div>
+              </td>
+              <td>
+                <div class="td-bold">{{ c.place }}</div>
+                <div class="td-details">{{ c.contractDate }}</div>
+                <div class="missing-docs-note" *ngIf="c.status === 'MISSING_DOCS' && c.missingDocNotes">
+                  <i class="fa-solid fa-circle-exclamation text-danger"></i>
+                  <strong>{{ auth.currentLang === 'ar' ? 'ملاحظة:' : 'Note :' }}</strong> {{ c.missingDocNotes }}
+                </div>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-pending': c.status === 'PENDING_REVIEW' || c.status === 'MISSING_DOCS',
+                  'badge-success': c.status === 'SIGNED',
+                  'badge-danger': c.status === 'REFUSED'
+                }">
+                  <ng-container *ngIf="auth.currentLang === 'ar'">
+                    <span *ngIf="c.status === 'PENDING_REVIEW'">قيد المراجعة</span>
+                    <span *ngIf="c.status === 'MISSING_DOCS'">نواقص</span>
+                    <span *ngIf="c.status === 'SIGNED'">تم التوقيع</span>
+                    <span *ngIf="c.status === 'REFUSED'">مرفوض</span>
+                  </ng-container>
+                  <ng-container *ngIf="auth.currentLang === 'fr'">
+                    <span *ngIf="c.status === 'PENDING_REVIEW'">En révision</span>
+                    <span *ngIf="c.status === 'MISSING_DOCS'">Pièces manquantes</span>
+                    <span *ngIf="c.status === 'SIGNED'">Signé</span>
+                    <span *ngIf="c.status === 'REFUSED'">Refusé</span>
+                  </ng-container>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="empty-state" *ngIf="contracts.length === 0">
+        <i class="fa-solid fa-folder-open empty-icon"></i>
+        <p *ngIf="auth.currentLang === 'ar'">لم تقم بتسجيل أي عقود حالياً</p>
+        <p *ngIf="auth.currentLang === 'fr'">Aucun contrat enregistré</p>
+      </div>
+    </div>
+  </div>
+</div>

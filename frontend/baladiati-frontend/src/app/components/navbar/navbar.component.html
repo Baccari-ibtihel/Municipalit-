@@ -1,0 +1,44 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="brand">
+      <img src="emblem.png?v=3" alt="Emblem" style="height: 32px; width: auto; margin-right: 8px;">
+      <span class="brand-text" *ngIf="auth.currentLang === 'ar'">بلديات تونس</span>
+      <span class="brand-text" *ngIf="auth.currentLang === 'fr'">Municipalités de Tunisie</span>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Language Selector -->
+      <button class="btn-lang" (click)="toggleLang()">
+        <i class="fa-solid fa-globe"></i>
+        <span>{{ auth.currentLang === 'ar' ? 'Français' : 'العربية' }}</span>
+      </button>
+
+      <!-- Authenticated User Controls -->
+      <ng-container *ngIf="auth.isLoggedIn()">
+        <div class="user-profile">
+          <i class="fa-solid fa-user-shield user-icon"></i>
+          <div class="user-info">
+            <span class="username">{{ auth.getUsername() }}</span>
+            <span class="user-role">
+              <ng-container *ngIf="auth.currentLang === 'ar'">
+                <span *ngIf="auth.getRole() === 'ROLE_AGENT'">أمين بلدي</span>
+                <span *ngIf="auth.getRole() === 'ROLE_CITIZEN'">مواطن</span>
+                <span *ngIf="auth.getRole() === 'ROLE_OFFICIANT'">ضابط الحالة المدنية</span>
+              </ng-container>
+              <ng-container *ngIf="auth.currentLang === 'fr'">
+                <span *ngIf="auth.getRole() === 'ROLE_AGENT'">Agent Municipal</span>
+                <span *ngIf="auth.getRole() === 'ROLE_CITIZEN'">Citoyen</span>
+                <span *ngIf="auth.getRole() === 'ROLE_OFFICIANT'">Officier d'État Civil</span>
+              </ng-container>
+            </span>
+          </div>
+        </div>
+
+        <button class="btn-logout" (click)="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>{{ auth.currentLang === 'ar' ? 'خروج' : 'Déconnexion' }}</span>
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</nav>
