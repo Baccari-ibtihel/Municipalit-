@@ -1,0 +1,18 @@
+# Backend - Maven / Spring Boot
+backend/target/
+backend/*.txt
+backend/.idea/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+
+# Frontend - Angular / Node
+frontend/baladiati-frontend/node_modules/
+frontend/baladiati-frontend/.angular/
+frontend/baladiati-frontend/dist/
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+*.class
+*.log
